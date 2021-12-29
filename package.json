@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "Keaton-codes-tech",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "dependencies": {
     "delaunator": "^5.0.0",
     "express": "^4.17.2"
