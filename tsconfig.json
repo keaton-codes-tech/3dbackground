@@ -6,12 +6,20 @@
             "dom",
             "es2021",
         ],
-        "module": "es6",
+        "module": "ESNext",
+        "moduleResolution": "node",
         "strict": true,
         "esModuleInterop": true,
+        "allowSyntheticDefaultImports" : true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "./dist/js",
+        "outDir": "./public/js",
         "rootDir": "./src",
+        "baseUrl": "./src",
+        "paths": {
+            "delaunator": [
+                "./node_modules/delaunator/"
+            ],
+        }
     }
 }
