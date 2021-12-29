@@ -1,0 +1,21 @@
+{
+  "name": "d-t-p-c",
+  "version": "1.0.0",
+  "description": "Delaunay Triangulation and Convex Hull with point clouds",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix"
+  },
+  "keywords": [],
+  "author": "Keaton-codes-tech",
+  "license": "ISC",
+  "dependencies": {
+    "delaunator": "^5.0.0",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "@types/delaunator": "^5.0.0"
+  }
+}

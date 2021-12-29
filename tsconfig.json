@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "watch": true,
+        "lib": [
+            "dom",
+            "es2021",
+        ],
+        "module": "es6",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist/js",
+        "rootDir": "./src",
+    }
+}
