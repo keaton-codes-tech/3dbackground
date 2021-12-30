@@ -27,16 +27,17 @@ const ctx = <CanvasRenderingContext2D> canvas.getContext("2d");
 // Draw style
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
-ctx.fillStyle = "white";
-ctx.strokeStyle = 'grey';
 ctx.lineWidth = 1;
 
 // Global variables
+const triangleColor = 'grey';
+const pointColor = 'white';
+const hullColor = 'yellow';
 const numPoints = 500;
 const pointMinDistance = 70;
 const pointMaxDistance = 150;
 const points: Array<PointInterface> = [];
-const maxTimeToWait = 2000;
+const maxTimeToWait = 100;
 const beginTime = Date.now();
 let elapsed = 0;
 
@@ -51,28 +52,87 @@ function generatePoints() {
     // points.push({x: canvas.width + 100, y: canvas.height + 100});
 
     // Create remaining points
+    const pointsPopulated: Array<number> = [];
     while (elapsed < maxTimeToWait && points.length < numPoints) {
         elapsed = Date.now() - beginTime;
         console.log(elapsed);
-        // choose a random existing point
-        let sourcePoint: PointInterface;
-        if (points.length < 4) {
-            sourcePoint = points[intBetweenRange(0, points.length - 1)];
-            addPoint(sourcePoint);
-        } else {
-            // choose a random existing convex hull point
-            const coords = convertPointsToCoords(points);
-            const delaunay = Delaunator.from(coords);
-            sourcePoint = points[delaunay.hull[intBetweenRange(0, delaunay.hull.length - 1)]];
-            addPoint(sourcePoint);
-        }
-        function addPoint(sourcePoint: PointInterface) {
-            const validPoint = findNewPoint(sourcePoint);
+
+        function fullRandom() {
+            const validPoint = fullRandom_FindNewPoint();
             if (validPoint) {
                 points.push(validPoint);
+            }
+        }
+
+        function randomAngleFromHullPoint() {
+            let sourcePoint: PointInterface;
+            if (points.length < 4) {
+                sourcePoint = points[intBetweenRange(0, points.length - 1)];
+                addPoint(sourcePoint);
+            } else {
+                // choose a random existing convex hull point
+                const coords = convertPointsToCoords(points);
+                const delaunay = Delaunator.from(coords);
+                sourcePoint = points[delaunay.hull[intBetweenRange(0, delaunay.hull.length - 1)]];
+                addPoint(sourcePoint);
+            }
+            function addPoint(sourcePoint: PointInterface) {
+                const validPoint = randomAngleFromPoint_FindNewPoint(sourcePoint);
+                if (validPoint) {
+                    points.push(validPoint);
+                    console.log('point added');
+                }            
+            }
+        }
+
+        function randomAngleFromPoint() {
+            // choose a random existing point
+            let sourcePoint: PointInterface;
+            sourcePoint = points[intBetweenRange(0, points.length - 1)];
+            addPoint(sourcePoint);
+            function addPoint(sourcePoint: PointInterface) {
+                const validPoint = randomAngleFromPoint_FindNewPoint(sourcePoint);
+                if (validPoint) {
+                    points.push(validPoint);
+                    console.log('point added');
+                }            
             }            
         }
 
+        function multipleRandomAnglesFromPoint() {
+            // choose a random existing point
+            let sourcePoint: PointInterface;
+            let sourcePointIndex = intBetweenRange(0, points.length - 1);
+            let acceptableSourcePointIndex = false;
+            function evaluateSourcePointIndex(count = 0) {
+                count++;
+                if (count > 10) {
+                    return;
+                } else if (pointsPopulated.includes(sourcePointIndex)) {
+                    sourcePointIndex = intBetweenRange(0, points.length - 1);
+                    evaluateSourcePointIndex(count);                    
+                } else {
+                    acceptableSourcePointIndex = true;
+                }
+            }
+            evaluateSourcePointIndex();
+            if (acceptableSourcePointIndex) {
+                pointsPopulated.push(sourcePointIndex);
+                sourcePoint = points[sourcePointIndex];
+                const numAttempts = 14;
+                for (let i = 0; i < numAttempts; i++) {
+                    addPoint(sourcePoint);
+                }
+                function addPoint(sourcePoint: PointInterface) {
+                    const validPoint = randomAngleFromPoint_FindNewPoint(sourcePoint);
+                    if (validPoint) {
+                        points.push(validPoint);
+                        console.log('point added');
+                    }            
+                }                
+            }
+        }
+        multipleRandomAnglesFromPoint();
     }
 }
 
@@ -95,7 +155,9 @@ function draw() {
     console.log(delaunay);
     console.log(points);
 
+    // draw lines to make up the triangles
     const triangles = delaunay.triangles;
+    ctx.strokeStyle = triangleColor;
     ctx.beginPath();
     for (let i = 0; i < triangles.length; i += 3) {
         const p0 = triangles[i];
@@ -108,18 +170,44 @@ function draw() {
     }
     ctx.stroke();
 
+    // draw lines to make up the convex hull
+    const hull = delaunay.hull;
+    ctx.strokeStyle = hullColor;
+    ctx.beginPath();
+    for (let i = 0; i < hull.length; i++) {
+        ctx.moveTo(coords[hull[i]][0], coords[hull[i]][1]);
+        if (i < hull.length - 1) {
+            ctx.lineTo(coords[hull[i + 1]][0], coords[hull[i + 1]][1]);
+        } else {
+            ctx.lineTo(coords[hull[0]][0], coords[hull[0]][1]);
+        }
+    }
+    ctx.stroke();
+
     // draw points after the lines so that they dont get painted over
+    ctx.fillStyle = pointColor;
     for (let i = points.length - 1; i >= 0; i--) {
         const point = points[i];
         ctx.fillRect(point.x, point.y, 1, 1);
     }
 }
 
-function findNewPoint(sourcePoint: PointInterface) {
+function randomAngleFromPoint_FindNewPoint(sourcePoint: PointInterface) {
     const theta = Math.random() * 2 * Math.PI;
     const radius = intBetweenRange(pointMinDistance, pointMaxDistance);
     const x = sourcePoint.x + radius * Math.cos(theta);
     const y = sourcePoint.y + radius * Math.sin(theta);
+    const newPoint = new Point(x, y);
+    if (isValidPoint(newPoint)) {
+        return newPoint;
+    } else {
+        return false;
+    }
+}
+
+function fullRandom_FindNewPoint() {
+    const x = intBetweenRange(0, canvas.width);
+    const y = intBetweenRange(0, canvas.height);
     const newPoint = new Point(x, y);
     if (isValidPoint(newPoint)) {
         return newPoint;
