@@ -30,6 +30,10 @@ ctx.lineCap = 'round';
 ctx.lineWidth = 1;
 
 // Global variables
+const xStart = -100;
+const yStart = -100;
+const xEnd = canvas.width + 100;
+const yEnd = canvas.height + 100;
 const triangleColor = 'grey';
 const pointColor = 'white';
 const hullColor = 'yellow';
@@ -157,40 +161,49 @@ function draw() {
     console.log(points);
 
     // draw lines to make up the triangles
-    const triangles = delaunay.triangles;
-    ctx.strokeStyle = triangleColor;
-    ctx.beginPath();
-    for (let i = 0; i < triangles.length; i += 3) {
-        const p0 = triangles[i];
-        const p1 = triangles[i + 1];
-        const p2 = triangles[i + 2];
-        ctx.moveTo(coords[p0][0], coords[p0][1]);
-        ctx.lineTo(coords[p1][0], coords[p1][1]);
-        ctx.lineTo(coords[p2][0], coords[p2][1]);
-        ctx.closePath();            
+    function drawTriangles() {
+        const triangles = delaunay.triangles;
+        ctx.strokeStyle = triangleColor;
+        ctx.beginPath();
+        for (let i = 0; i < triangles.length; i += 3) {
+            const p0 = triangles[i];
+            const p1 = triangles[i + 1];
+            const p2 = triangles[i + 2];
+            ctx.moveTo(coords[p0][0], coords[p0][1]);
+            ctx.lineTo(coords[p1][0], coords[p1][1]);
+            ctx.lineTo(coords[p2][0], coords[p2][1]);
+            ctx.closePath();            
+        }
+        ctx.stroke();        
     }
-    ctx.stroke();
+    drawTriangles();
 
     // draw lines to make up the convex hull
-    const hull = delaunay.hull;
-    ctx.strokeStyle = hullColor;
-    ctx.beginPath();
-    for (let i = 0; i < hull.length; i++) {
-        ctx.moveTo(coords[hull[i]][0], coords[hull[i]][1]);
-        if (i < hull.length - 1) {
-            ctx.lineTo(coords[hull[i + 1]][0], coords[hull[i + 1]][1]);
-        } else {
-            ctx.lineTo(coords[hull[0]][0], coords[hull[0]][1]);
+    function drawHull() {
+        const hull = delaunay.hull;
+        ctx.strokeStyle = hullColor;
+        ctx.beginPath();
+        for (let i = 0; i < hull.length; i++) {
+            ctx.moveTo(coords[hull[i]][0], coords[hull[i]][1]);
+            if (i < hull.length - 1) {
+                ctx.lineTo(coords[hull[i + 1]][0], coords[hull[i + 1]][1]);
+            } else {
+                ctx.lineTo(coords[hull[0]][0], coords[hull[0]][1]);
+            }
         }
+        ctx.stroke();        
     }
-    ctx.stroke();
 
     // draw points after the lines so that they dont get painted over
-    ctx.fillStyle = pointColor;
-    for (let i = points.length - 1; i >= 0; i--) {
-        const point = points[i];
-        ctx.fillRect(point.x, point.y, 1, 1);
+    function drawPoints() {
+        ctx.fillStyle = pointColor;
+        for (let i = points.length - 1; i >= 0; i--) {
+            const point = points[i];
+            ctx.fillRect(point.x, point.y, 1, 1);
+        }        
     }
+    drawPoints();
+
 }
 
 function randomAngleFromPoint_FindNewPoint(sourcePoint: PointInterface) {
@@ -207,8 +220,8 @@ function randomAngleFromPoint_FindNewPoint(sourcePoint: PointInterface) {
 }
 
 function fullRandom_FindNewPoint() {
-    const x = intBetweenRange(0, canvas.width);
-    const y = intBetweenRange(0, canvas.height);
+    const x = intBetweenRange(xStart, xEnd);
+    const y = intBetweenRange(yStart, yEnd);
     const newPoint = new Point(x, y);
     if (isValidPoint(newPoint)) {
         return newPoint;
@@ -218,7 +231,7 @@ function fullRandom_FindNewPoint() {
 }
 
 function isValidPoint(point: PointInterface) {
-    if (point.x < 0 || point.x > canvas.width || point.y < 0 || point.y > canvas.height) {
+    if (point.x < xStart || point.x > xEnd || point.y < yStart || point.y > yEnd) {
         return false;
     } else {
         let isValid = false;
