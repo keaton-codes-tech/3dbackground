@@ -91,8 +91,10 @@ function draw() {
     // connect all points without crossing lines using delaunay triangulation
     const coords = convertPointsToCoords(points);
     const delaunay = Delaunator.from(coords);
+
     console.log(delaunay);
     console.log(points);
+
     const triangles = delaunay.triangles;
     ctx.beginPath();
     for (let i = 0; i < triangles.length; i += 3) {
