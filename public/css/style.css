@@ -9,3 +9,13 @@ canvas {
     height: 100%;
     position: fixed;
 }
+
+#fps-counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background-color: rgba(240, 240, 240, 0.5);
+    color: white;
+    z-index: 2;
+}

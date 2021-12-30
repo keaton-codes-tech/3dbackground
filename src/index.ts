@@ -45,6 +45,7 @@ function main() {
     const maxTimeToWait = 100;
     const beginTime = Date.now();
     let elapsed = 0;
+    let fps = 60;
 
     function generatePoints() {
         console.time('Generate points function');
@@ -262,12 +263,23 @@ function main() {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function loop() {
+    function updateFPS() {
+        const fpsElement = document.getElementById('fps-counter');
+        if (fpsElement) {
+            setInterval(() => {
+                fpsElement.innerHTML = `FPS: ${fps}`;
+            }, 500);
+        }
+    }
+
+    function loop(t0 = performance.now()) {
         draw();
-        //window.requestAnimationFrame(loop);
+        fps = Math.floor(1000 / (performance.now() - t0));
+        requestAnimationFrame(loop);
     }
 
     function init() {
+        updateFPS();
         generatePoints();
         loop();
     }
