@@ -43,7 +43,7 @@ let elapsed = 0;
 
 function generatePoints() {
     // Create first points
-    const firstPoint = new Point(canvas.width/2, canvas.height/2);
+    const firstPoint = new Point(Math.floor(canvas.width/2), Math.floor(canvas.height/2));
     points.push(firstPoint);
     
     // points.push({x: -100, y: -100});
@@ -104,6 +104,7 @@ function generatePoints() {
             let sourcePoint: PointInterface;
             let sourcePointIndex = intBetweenRange(0, points.length - 1);
             let acceptableSourcePointIndex = false;
+            // don't choose a point that has already been used
             function evaluateSourcePointIndex(count = 0) {
                 count++;
                 if (count > 10) {
@@ -119,7 +120,7 @@ function generatePoints() {
             if (acceptableSourcePointIndex) {
                 pointsPopulated.push(sourcePointIndex);
                 sourcePoint = points[sourcePointIndex];
-                const numAttempts = 14;
+                const numAttempts = 50;
                 for (let i = 0; i < numAttempts; i++) {
                     addPoint(sourcePoint);
                 }
@@ -141,7 +142,7 @@ function convertPointsToCoords(points: Array<PointInterface>) {
     const coords: Array<Array<number>> = [];
     for (let i = 0; i < points.length; i++) {
         const point = points[i];
-        coords.push([Math.floor(point.x), Math.floor(point.y)]);
+        coords.push([point.x, point.y]);
     }
     return coords;
 }
@@ -195,8 +196,8 @@ function draw() {
 function randomAngleFromPoint_FindNewPoint(sourcePoint: PointInterface) {
     const theta = Math.random() * 2 * Math.PI;
     const radius = intBetweenRange(pointMinDistance, pointMaxDistance);
-    const x = sourcePoint.x + radius * Math.cos(theta);
-    const y = sourcePoint.y + radius * Math.sin(theta);
+    const x = Math.floor(sourcePoint.x + radius * Math.cos(theta));
+    const y = Math.floor(sourcePoint.y + radius * Math.sin(theta));
     const newPoint = new Point(x, y);
     if (isValidPoint(newPoint)) {
         return newPoint;
