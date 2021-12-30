@@ -204,7 +204,8 @@ function main() {
 
         function fillTriangles() {
             forEachTriangle(coords, delaunay, (t: number, threePoints: CoordsType) => {
-                ctx.fillStyle = 'rgb(50,50,50)';
+                const shade = intBetweenRange(0, 255);
+                ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
                 ctx.beginPath();
                 ctx.moveTo(threePoints[0][0], threePoints[0][1]);
                 ctx.lineTo(threePoints[1][0], threePoints[1][1]);
